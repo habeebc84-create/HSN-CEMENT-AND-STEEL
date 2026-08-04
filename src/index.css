@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-slate-950: #040814;
+  --color-slate-900: #0a0f24;
+  --color-slate-850: #121a3a;
+  --color-slate-800: #1c2854;
+  --color-slate-700: #3b4d8c;
+  --color-slate-600: #8195cf;
+  --color-slate-500: #a3b5e8;
+  --color-slate-400: #cbd5f0;
+  --color-slate-300: #e2e8f5;
+  --color-slate-200: #f1f4fa;
+  --color-slate-100: #ffffff;
+}
+
+@layer base {
+  body {
+    @apply text-slate-100 font-sans antialiased min-h-screen relative overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+    background-color: #040814; 
+    background-image: 
+      radial-gradient(ellipse at 10% 20%, rgba(59, 130, 246, 0.50) 0%, transparent 60%),
+      radial-gradient(ellipse at 90% 80%, rgba(236, 72, 153, 0.50) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.30) 0%, transparent 65%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  img {
+    image-rendering: high-quality;
+    image-rendering: -webkit-optimize-contrast;
+    filter: contrast(108%) saturate(108%) brightness(103%);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  .hd-img-crisp {
+    image-rendering: high-quality;
+    filter: contrast(110%) saturate(112%) brightness(105%);
+  }
+
+  h1, h2, h3, .font-industrial {
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  @keyframes scale-in {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes flip-spin {
+    0% { transform: perspective(400px) rotateY(0deg); }
+    50% { transform: perspective(400px) rotateY(180deg); }
+    100% { transform: perspective(400px) rotateY(360deg); }
+  }
+
+  .perspective-1000 { perspective: 1000px; }
+  .preserve-3d { transform-style: preserve-3d; }
+  .backface-hidden { backface-visibility: hidden; }
+  .rotate-y-180 { transform: rotateY(180deg); }
+}
+
+/* ═══ INDUSTRIAL CONSTRUCTION THEME ═══ */
+
+.construction-card, .antigravity-card, .glassy-card {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.construction-card:hover, .antigravity-card:hover, .glassy-card:hover {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(6, 182, 212, 0.2);
+  transform: translateY(-3px);
+}
+
+.glassy-pill {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+.glassy-pill-active {
+  background: linear-gradient(135deg, #EC4899 0%, #3B82F6 100%);
+  color: #ffffff;
+  border: 1px solid #DB2777;
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
+}
+
+@keyframes dual-color-mix {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Primary CTA Button (Blue/Pink Theme) */
+.safety-orange-btn {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+  background-size: 200% 200%;
+  animation: dual-color-mix 3.5s ease infinite;
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.safety-pink-btn:hover {
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Crisp Solid Buy/Add-to-Cart Button (Purple & Cyan Theme) */
+.solid-buy-btn {
+  background: linear-gradient(135deg, #EC4899 0%, #3B82F6 100%);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+  transition: all 0.2s ease;
+}
+
+.solid-buy-btn:hover {
+  background: linear-gradient(135deg, #F472B6 0%, #60A5FA 100%);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+}
+
+/* Marquee Ticker */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 24s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ═══ LIQUID THEME ANIMATIONS ═══ */
+
+@keyframes liquid-blob {
+  0% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+  25% { border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%; }
+  50% { border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%; }
+  75% { border-radius: 70% 30% 50% 50% / 30% 70% 40% 60%; }
+  100% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+}
+
+@keyframes liquid-bg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float-liquid {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-15px) rotate(3deg); }
+  66% { transform: translateY(10px) rotate(-2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.shape-liquid {
+  animation: liquid-blob 20s ease-in-out infinite, float-liquid 25s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
+}
+
+.theme-lovable { background-image: linear-gradient(to right, #EC4899, #3B82F6); }
+.theme-aurora { background-image: linear-gradient(to right, #3B82F6, #EC4899, #3B82F6); }
+.theme-cyber { background-image: linear-gradient(to right, #EC4899, #3B82F6); }
+
+/* Optional animated version */
+.text-gradient-animated {
+  background-size: 200% auto;
+  /* animation removed as per user request */
+}
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.bg-liquid {
+  background: transparent;
+}
+
+.liquid-float {
+  animation: float-liquid 10s ease-in-out infinite;
+}
+
+.wave-divider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+/* ═══ MACBOOK / APPLE DRONE AERIAL WALLPAPER MOTION ═══ */
+
+@keyframes macbook-drone-zoom {
+  0% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.18) translate(-1.5%, -1.2%);
+  }
+  100% {
+    transform: scale(1.04) translate(0%, 0%);
+  }
+}
+
+.drone-wallpaper-motion {
+  animation: macbook-drone-zoom 32s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  will-change: transform;
+}
+
+/* ═══ 3D LOGO INTRO ANIMATION ═══ */
+
+@keyframes logo-3d-rotate {
+  0% {
+    transform: rotateY(-180deg) rotateX(20deg) scale(0.4);
+    filter: brightness(0.5) blur(4px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    filter: brightness(1.2) blur(0px);
+  }
+  50% {
+    transform: rotateY(10deg) rotateX(10deg) scale(1.15);
+    filter: brightness(1.4);
+  }
+  80% {
+    transform: rotateY(360deg) rotateX(0deg) scale(1.0);
+    filter: brightness(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(540deg) rotateX(0deg) scale(5);
+    filter: brightness(3.5) blur(10px);
+    opacity: 0;
+  }
+}
+
+.animate-logo-3d {
+  animation: logo-3d-rotate 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  transform-style: preserve-3d;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+@keyframes loading-progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-progress 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes loader-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-loader-scan {
+  animation: loader-scan 1s infinite linear;
+}
+
+@keyframes liquid-glow-slow {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) rotate(120deg) scale(1.1);
+  }
+  66% {
+    transform: translate(-30px, 30px) rotate(240deg) scale(0.95);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(360deg) scale(1);
+  }
+}
+
+.animate-glow-slow-1 {
+  animation: liquid-glow-slow 20s ease-in-out infinite;
+}
+
+.animate-glow-slow-2 {
+  animation: liquid-glow-slow 25s ease-in-out infinite reverse;
+}
+
+@keyframes liquid-glow-1 {
+  0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+  33% { transform: translate(40px, -60px) scale(1.2) rotate(120deg); }
+  66% { transform: translate(-30px, 30px) scale(0.85) rotate(240deg); }
+  100% { transform: translate(0px, 0px) scale(1) rotate(360deg); }
+}
+
+@keyframes liquid-glow-2 {
+  0% { transform: translate(0px, 0px) scale(1.1) rotate(180deg); }
+  33% { transform: translate(-50px, 50px) scale(0.8) rotate(60deg); }
+  66% { transform: translate(40px, -30px) scale(1.25) rotate(300deg); }
+  100% { transform: translate(0px, 0px) scale(1.1) rotate(180deg); }
+}
+
+@keyframes liquid-glow-3 {
+  0% { transform: translate(0px, 0px) scale(0.9) rotate(360deg); }
+  33% { transform: translate(60px, 40px) scale(1.15) rotate(240deg); }
+  66% { transform: translate(-50px, -50px) scale(0.9) rotate(120deg); }
+  100% { transform: translate(0px, 0px) scale(0.9) rotate(0deg); }
+}
+
+@keyframes liquid-glow-4 {
+  0% { transform: translate(0px, 0px) scale(1.2) rotate(90deg); }
+  33% { transform: translate(-40px, -40px) scale(0.85) rotate(210deg); }
+  66% { transform: translate(50px, 50px) scale(1.2) rotate(330deg); }
+  100% { transform: translate(0px, 0px) scale(1.2) rotate(90deg); }
+}
+
+.animate-glow-1 { animation: liquid-glow-1 18s ease-in-out infinite alternate; }
+.animate-glow-2 { animation: liquid-glow-2 22s ease-in-out infinite alternate; }
+.animate-glow-3 { animation: liquid-glow-3 25s ease-in-out infinite alternate; }
+.animate-glow-4 { animation: liquid-glow-4 28s ease-in-out infinite alternate; }
