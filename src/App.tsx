@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { Navbar } from './components/Navbar';
 import { AnnouncementTicker } from './components/AnnouncementTicker';
@@ -22,75 +22,147 @@ import { Order } from './types';
 
 import { TermsPage } from './pages/TermsPage';
 
+// ─── Hash-Based Router ─────────────────────────────────────────────────────────
+// Maps hash routes to internal tab names and vice-versa.
+
+const HASH_TO_TAB: Record<string, string> = {
+  '':              'splash',
+  '/':             'splash',
+  '/home':         'home',
+  '/products':     'products',
+  '/services':     'services',
+  '/gallery':      'gallery',
+  '/about':        'about',
+  '/contact':      'contact',
+  '/checkout':     'checkout',
+  '/order-success':'order-success',
+  '/terms':        'terms',
+  '/0x8f3a9c':        'admin-login',
+  '/0x8f3a9c/7d':     'admin-dashboard',
+};
+
+const TAB_TO_HASH: Record<string, string> = {
+  'splash':          '/',
+  'home':            '/home',
+  'products':        '/products',
+  'services':        '/services',
+  'gallery':         '/gallery',
+  'about':           '/about',
+  'contact':         '/contact',
+  'checkout':        '/checkout',
+  'order-success':   '/order-success',
+  'terms':           '/terms',
+  'admin-login':     '/0x8f3a9c',
+  'admin-dashboard': '/0x8f3a9c/7d',
+};
+
+/** Read the current hash and return the matching tab name */
+function getTabFromHash(): string {
+  const raw = window.location.hash.replace(/^#/, '');
+  const route = raw || '/';
+
+  // Also support legacy pathname-based admin URL → redirect to hash
+  if (window.location.pathname.toLowerCase().startsWith('/0x8f3a9c')) {
+    window.history.replaceState({}, document.title, '/#/0x8f3a9c');
+    return 'admin-login';
+  }
+
+  return HASH_TO_TAB[route] || 'splash';
+}
+
+/** Custom hook: keeps activeTab in sync with location.hash */
+function useHashRoute() {
+  const [activeTab, setActiveTabState] = useState<string>(getTabFromHash);
+
+  // Listen for browser back/forward
+  useEffect(() => {
+    const onHashChange = () => {
+      setActiveTabState(getTabFromHash());
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Navigate: update hash (which triggers hashchange → state update)
+  const navigateTo = useCallback((tab: string) => {
+    const hash = TAB_TO_HASH[tab] || '/';
+    window.location.hash = '#' + hash;
+    // Also set state immediately for instant UI response
+    setActiveTabState(tab);
+  }, []);
+
+  return { activeTab, navigateTo };
+}
+
+// ─── Main Content ───────────────────────────────────────────────────────────────
+
 const MainContent: React.FC = () => {
   const { isAdmin, logoutAdmin, siteContent } = useStore();
-  
-  // Synchronous check to avoid Splash screen flash (covers any URL starting with /admin)
-  const isInitiallyAdmin = window.location.pathname.toLowerCase().startsWith('/admin');
+  const { activeTab, navigateTo } = useHashRoute();
 
-  const [hasEnteredStore, setHasEnteredStore] = useState<boolean>(isInitiallyAdmin);
   const [isEnteringStore, setIsEnteringStore] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>(isInitiallyAdmin ? 'admin-login' : 'home');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('All');
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [lastPlacedOrder, setLastPlacedOrder] = useState<Order | null>(null);
   const [hasBypassedMaintenance, setHasBypassedMaintenance] = useState<boolean>(false);
 
   const isAdminView = activeTab === 'admin-login' || activeTab === 'admin-dashboard';
-
-  // Clean URL and force logout to ensure email & password are always requested
-  React.useEffect(() => {
-    const path = window.location.pathname.toLowerCase();
-    if (path.startsWith('/admin')) {
-      logoutAdmin();
-      window.history.replaceState({}, document.title, '/');
-    }
-  }, [logoutAdmin]);
+  const isSplash = activeTab === 'splash';
 
   // When admin logs out, redirect from dashboard to home (but NOT from login page)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAdmin && activeTab === 'admin-dashboard') {
-      setActiveTab('home');
+      navigateTo('home');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [isAdmin, activeTab]);
+  }, [isAdmin, activeTab, navigateTo]);
 
   // Lock admin to admin-dashboard during maintenance mode
-  React.useEffect(() => {
+  useEffect(() => {
     if (siteContent.maintenanceMode && isAdmin && activeTab !== 'admin-dashboard') {
-      setActiveTab('admin-dashboard');
+      navigateTo('admin-dashboard');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [siteContent.maintenanceMode, isAdmin, activeTab]);
+  }, [siteContent.maintenanceMode, isAdmin, activeTab, navigateTo]);
 
   const handleOrderCompleted = (order: Order) => {
     setLastPlacedOrder(order);
-    setActiveTab('order-success');
+    navigateTo('order-success');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEnterStore = (callback?: () => void) => {
     setIsEnteringStore(true);
     setTimeout(() => {
-      setHasEnteredStore(true);
       setIsEnteringStore(false);
-      if (callback) callback();
+      if (callback) {
+        callback();
+      } else {
+        navigateTo('home');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 1000);
   };
 
+  const handleAdminPortal = () => {
+    logoutAdmin();
+    navigateTo('admin-login');
+  };
+
+  // Maintenance mode gate
   if (siteContent.maintenanceMode && !isAdmin && !hasBypassedMaintenance && activeTab !== 'admin-login') {
     return (
       <MaintenanceScreen onBypass={(isCodeOnly) => {
         if (isCodeOnly) {
           setHasBypassedMaintenance(true);
         } else {
-          setActiveTab('admin-dashboard');
+          navigateTo('admin-dashboard');
         }
       }} />
     );
   }
 
+  // ─── Entering Store Transition Screen ──────────────────────────────────────
   if (isEnteringStore) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 font-sans selection:bg-pink-500 selection:text-white overflow-hidden">
@@ -155,20 +227,23 @@ const MainContent: React.FC = () => {
     );
   }
 
-  if (!hasEnteredStore) {
+  // ─── Splash Landing Page ───────────────────────────────────────────────────
+  if (isSplash) {
     return (
       <SplashLandingPage
         onEnterStore={() => handleEnterStore()}
+        onAdminPortal={handleAdminPortal}
         onSelectCategory={(catName: string) => {
           handleEnterStore(() => {
             setSelectedCategoryFilter(catName || 'All');
-            setActiveTab('products');
+            navigateTo('products');
           });
         }}
       />
     );
   }
 
+  // ─── Main Application Shell ────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col text-slate-100 font-sans relative selection:bg-pink-500 selection:text-slate-950 overflow-x-hidden">
       
@@ -195,9 +270,9 @@ const MainContent: React.FC = () => {
             activeTab={activeTab} 
             setActiveTab={(tab) => {
               if (tab === 'gateway') {
-                setHasEnteredStore(false);
+                navigateTo('splash');
               } else {
-                setActiveTab(tab);
+                navigateTo(tab);
               }
             }} 
             openCart={() => setIsCartOpen(true)} 
@@ -213,7 +288,7 @@ const MainContent: React.FC = () => {
             isAdmin ? (
               <AdminDashboard />
             ) : (
-              <AdminLogin onSuccess={() => setActiveTab('admin-dashboard')} />
+              <AdminLogin onSuccess={() => navigateTo('admin-dashboard')} />
             )
           )}
 
@@ -221,7 +296,7 @@ const MainContent: React.FC = () => {
             isAdmin ? (
               <AdminDashboard />
             ) : (
-              <AdminLogin onSuccess={() => setActiveTab('admin-dashboard')} />
+              <AdminLogin onSuccess={() => navigateTo('admin-dashboard')} />
             )
           )}
         </div>
@@ -229,7 +304,7 @@ const MainContent: React.FC = () => {
         <main className="flex-grow relative z-10 pt-4 md:pt-6">
           {activeTab === 'home' && (
             <Home onNavigate={(tab, category) => {
-              setActiveTab(tab);
+              navigateTo(tab);
               if (category) {
                 setSelectedCategoryFilter(category);
               }
@@ -242,11 +317,11 @@ const MainContent: React.FC = () => {
           {activeTab === 'gallery' && <GalleryPage />}
           {activeTab === 'about' && <AboutPage />}
           {activeTab === 'contact' && <ContactPage />}
-          {activeTab === 'terms' && <TermsPage onNavigate={setActiveTab} />}
+          {activeTab === 'terms' && <TermsPage onNavigate={navigateTo} />}
 
           {activeTab === 'checkout' && (
             <CheckoutPage 
-              onBackToCart={() => setActiveTab('products')} 
+              onBackToCart={() => navigateTo('products')} 
               onOrderCompleted={handleOrderCompleted} 
             />
           )}
@@ -255,7 +330,7 @@ const MainContent: React.FC = () => {
             <OrderSuccessPage 
               order={lastPlacedOrder} 
               onContinueShopping={() => {
-                setActiveTab('products');
+                navigateTo('products');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }} 
             />
@@ -267,7 +342,7 @@ const MainContent: React.FC = () => {
       {!isAdminView && (
         <>
           <Footer onNavClick={(tab) => {
-            setActiveTab(tab);
+            navigateTo(tab);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }} />
           <FloatingActions />
@@ -280,7 +355,7 @@ const MainContent: React.FC = () => {
         onClose={() => setIsCartOpen(false)} 
         onProceedToCheckout={() => {
           setIsCartOpen(false);
-          setActiveTab('checkout');
+          navigateTo('checkout');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }} 
       />

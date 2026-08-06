@@ -29,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavClick }) => {
                 alt="HSN Cement & Steel Logo"
                 onDoubleClick={() => {
                   logoutAdmin();
-                  onNavClick('admin-login');
+                  window.location.hash = '#/0x8f3a9c';
                 }}
                 className="w-12 h-12 rounded-xl object-contain bg-slate-900 border border-slate-800 p-1 shadow-sm group-hover:border-pink-500 transition"
               />
@@ -55,6 +55,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavClick }) => {
                   <button
                     onClick={() => {
                       onNavClick(link);
+                      // Sync URL hash
+                      window.location.hash = '#/' + link;
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="hover:text-white transition capitalize text-xs"
@@ -110,7 +112,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavClick }) => {
             <p 
               onDoubleClick={() => {
                 logoutAdmin();
-                onNavClick('admin-login');
+                window.location.hash = '#/0x8f3a9c';
               }} 
               className="cursor-default text-slate-400"
             >
